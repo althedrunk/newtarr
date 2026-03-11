@@ -1798,18 +1798,47 @@ let huntarrUI = {
             const instances = statusData?.instances || [];
             if (breakdown && instances.length > 1) {
                 breakdown.className = 'instance-breakdown multi';
-                breakdown.innerHTML = `<div class="instance-breakdown-title">Per Instance</div>` +
-                    instances.map(inst => {
-                        const safeName = (inst.name || 'Default').replace(/[^a-zA-Z0-9_-]/g, '-');
-                        const connIcon = inst.connected
-                            ? `<span class="inst-status ok"><i class="fas fa-check-circle"></i></span>`
-                            : `<span class="inst-status err"><i class="fas fa-times-circle"></i></span>`;
-                        return `<div class="instance-row" data-app="${app}" data-inst="${safeName}">` +
+                const headerHtml =
+                    `<div class="instance-breakdown-header">` +
+                        `<span>Per Instance</span>` +
+                        `<span class="inst-col-right">Searches</span>` +
+                        `<span class="inst-col-right">Upgrades</span>` +
+                    `</div>`;
+                const rowsHtml = instances.map(inst => {
+                    const safeName = (inst.name || 'Default').replace(/[^a-zA-Z0-9_-]/g, '-');
+                    const dotClass = inst.connected ? 'ok' : 'err';
+                    return `<div class="instance-row" data-app="${app}" data-inst="${safeName}">` +
+                        `<div class="inst-info">` +
+                            `<span class="inst-dot ${dotClass}"></span>` +
                             `<span class="inst-name" title="${inst.name}">${inst.name}</span>` +
-                            connIcon +
-                            `<span class="inst-stats"><span id="${app}__${safeName}-hunted">0</span>S / <span id="${app}__${safeName}-upgraded">0</span>U</span>` +
-                            `</div>`;
-                    }).join('');
+                        `</div>` +
+                        `<div class="inst-count-cell">` +
+                            `<span class="inst-count-num" id="${app}__${safeName}-hunted">0</span>` +
+                            `<span class="inst-count-label">searches</span>` +
+                        `</div>` +
+                        `<div class="inst-count-cell">` +
+                            `<span class="inst-count-num" id="${app}__${safeName}-upgraded">0</span>` +
+                            `<span class="inst-count-label">upgrades</span>` +
+                        `</div>` +
+                    `</div>`;
+                }).join('');
+                // Legacy row placeholder (filled in by updateStatsDisplay when there's a gap)
+                const legacyHtml =
+                    `<div class="instance-row legacy-row" id="${app}-legacy-row" style="display:none">` +
+                        `<div class="inst-info">` +
+                            `<span class="inst-dot legacy"></span>` +
+                            `<span class="inst-name" title="Stats recorded before per-instance tracking">pre-tracking</span>` +
+                        `</div>` +
+                        `<div class="inst-count-cell">` +
+                            `<span class="inst-count-num" id="${app}__legacy-hunted">0</span>` +
+                            `<span class="inst-count-label">searches</span>` +
+                        `</div>` +
+                        `<div class="inst-count-cell">` +
+                            `<span class="inst-count-num" id="${app}__legacy-upgraded">0</span>` +
+                            `<span class="inst-count-label">upgrades</span>` +
+                        `</div>` +
+                    `</div>`;
+                breakdown.innerHTML = headerHtml + rowsHtml + legacyHtml;
             } else if (breakdown) {
                 breakdown.className = 'instance-breakdown';
                 breakdown.innerHTML = '';
@@ -2029,8 +2058,13 @@ let huntarrUI = {
 
                 // Per-instance breakdown stats
                 const instanceStats = stats[app].instances || {};
+                let instanceHunted = 0;
+                let instanceUpgraded = 0;
+
                 Object.entries(instanceStats).forEach(([instName, instData]) => {
                     const safeName = instName.replace(/[^a-zA-Z0-9_-]/g, '-');
+                    instanceHunted += instData.hunted || 0;
+                    instanceUpgraded += instData.upgraded || 0;
                     statTypes.forEach(type => {
                         const el = document.getElementById(`${app}__${safeName}-${type}`);
                         if (el) {
@@ -2038,6 +2072,24 @@ let huntarrUI = {
                         }
                     });
                 });
+
+                // Show pre-tracking legacy row if instance totals don't account for all stats
+                const totalHunted = stats[app].hunted || 0;
+                const totalUpgraded = stats[app].upgraded || 0;
+                const legacyHunted = totalHunted - instanceHunted;
+                const legacyUpgraded = totalUpgraded - instanceUpgraded;
+                const legacyRow = document.getElementById(`${app}-legacy-row`);
+                if (legacyRow) {
+                    if (legacyHunted > 0 || legacyUpgraded > 0) {
+                        legacyRow.style.display = '';
+                        const lh = document.getElementById(`${app}__legacy-hunted`);
+                        const lu = document.getElementById(`${app}__legacy-upgraded`);
+                        if (lh) this.animateNumber(lh, parseInt(lh.textContent) || 0, legacyHunted);
+                        if (lu) this.animateNumber(lu, parseInt(lu.textContent) || 0, legacyUpgraded);
+                    } else {
+                        legacyRow.style.display = 'none';
+                    }
+                }
             }
         });
     },

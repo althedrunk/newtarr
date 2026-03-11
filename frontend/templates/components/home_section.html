@@ -724,53 +724,96 @@
     }
 
     /* Per-instance breakdown table */
+    /* ── Per-instance breakdown ─────────────────────────────────────────── */
     .instance-breakdown {
+        display: none;
         width: 100%;
-        margin: 6px 0 2px;
-        display: none; /* hidden when only 1 instance */
+        margin: 10px 0 4px;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        padding-top: 8px;
     }
-    .instance-breakdown.multi {
-        display: block;
+    .instance-breakdown.multi { display: block; }
+
+    .instance-breakdown-header {
+        display: grid;
+        grid-template-columns: 1fr 52px 52px;
+        align-items: center;
+        margin-bottom: 4px;
+        padding: 0 2px;
     }
-    .instance-breakdown-title {
-        font-size: 10px;
+    .instance-breakdown-header span {
+        font-size: 9px;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
-        color: rgba(160, 168, 184, 0.6);
-        margin-bottom: 5px;
-        padding-bottom: 3px;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
+        letter-spacing: 0.9px;
+        color: rgba(160, 168, 184, 0.5);
     }
+    .instance-breakdown-header .inst-col-right {
+        text-align: right;
+    }
+
     .instance-row {
+        display: grid;
+        grid-template-columns: 1fr 52px 52px;
+        align-items: center;
+        padding: 4px 2px;
+        border-radius: 4px;
+        transition: background 0.15s;
+        gap: 0;
+    }
+    .instance-row:hover { background: rgba(255,255,255,0.04); }
+
+    .inst-info {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 3px 0;
-        font-size: 11px;
-        gap: 6px;
+        gap: 7px;
+        overflow: hidden;
     }
-    .instance-row .inst-name {
-        font-weight: 600;
-        color: rgba(209, 213, 219, 0.9);
-        flex: 1;
+    .inst-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .inst-dot.ok  { background: #2ecc71; box-shadow: 0 0 4px rgba(46,204,113,0.6); }
+    .inst-dot.err { background: #e74c3c; box-shadow: 0 0 4px rgba(231,76,60,0.6); }
+    .inst-dot.legacy { background: rgba(160,168,184,0.35); }
+
+    .inst-name {
+        font-size: 11px;
+        font-weight: 500;
+        color: rgba(209, 213, 219, 0.85);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    .instance-row .inst-status {
-        font-size: 10px;
-        flex-shrink: 0;
+    .instance-row.legacy-row .inst-name {
+        color: rgba(160, 168, 184, 0.5);
+        font-style: italic;
     }
-    .instance-row .inst-status.ok { color: #2ecc71; }
-    .instance-row .inst-status.err { color: #e74c3c; }
-    .instance-row .inst-stats {
-        color: rgba(160, 168, 184, 0.8);
-        flex-shrink: 0;
+
+    .inst-count-cell {
         text-align: right;
+        line-height: 1;
     }
-    .instance-row .inst-stats span {
-        font-weight: 600;
-        color: rgba(209,213,219,0.9);
+    .inst-count-num {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: rgba(209, 213, 219, 0.9);
+    }
+    .instance-row.legacy-row .inst-count-num {
+        color: rgba(160,168,184,0.45);
+        font-size: 11px;
+        font-weight: 500;
+    }
+    .inst-count-label {
+        display: block;
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: rgba(160, 168, 184, 0.5);
+        margin-top: 1px;
     }
     
     /* App-specific accent colors for sonarr */
