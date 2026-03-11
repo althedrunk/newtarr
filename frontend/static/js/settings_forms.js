@@ -1238,33 +1238,9 @@ const SettingsForms = {
                     </label>
                     <p class="setting-help" style="margin-left: -3ch !important;">Show or hide the Resources section on the home page</p>
                 </div>
-                <div class="setting-item">
+                <div class="setting-item" id="timezone-setting-item">
                     <label for="timezone"><span class="info-icon" title="IANA timezone used for the scheduler (e.g. Europe/London)"><i class="fas fa-info-circle"></i></span>&nbsp;&nbsp;&nbsp;Timezone:</label>
-                    <select id="timezone" name="timezone" style="width: 300px; padding: 8px 12px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background-color: #1f2937; color: #d1d5db; -webkit-appearance: none; -moz-appearance: none; appearance: none;">
-                        ${(function() {
-                            const zones = [
-                                'UTC',
-                                'Europe/London','Europe/Dublin','Europe/Lisbon',
-                                'Europe/Paris','Europe/Berlin','Europe/Brussels','Europe/Amsterdam','Europe/Rome','Europe/Madrid','Europe/Zurich',
-                                'Europe/Helsinki','Europe/Warsaw','Europe/Prague','Europe/Vienna','Europe/Budapest','Europe/Bucharest',
-                                'Europe/Athens','Europe/Istanbul',
-                                'Europe/Moscow','Europe/Kyiv',
-                                'America/New_York','America/Chicago','America/Denver','America/Phoenix','America/Los_Angeles',
-                                'America/Anchorage','Pacific/Honolulu',
-                                'America/Toronto','America/Vancouver',
-                                'America/Sao_Paulo','America/Argentina/Buenos_Aires','America/Mexico_City',
-                                'Asia/Dubai','Asia/Kolkata','Asia/Dhaka',
-                                'Asia/Bangkok','Asia/Singapore','Asia/Hong_Kong','Asia/Shanghai','Asia/Tokyo','Asia/Seoul',
-                                'Australia/Sydney','Australia/Melbourne','Australia/Perth','Australia/Brisbane',
-                                'Pacific/Auckland','Pacific/Auckland',
-                                'Africa/Johannesburg','Africa/Cairo','Africa/Lagos'
-                            ];
-                            const current = '${settings.timezone || 'UTC'}';
-                            return [...new Set(zones)].map(z =>
-                                \`<option value="\${z}" \${z === current ? 'selected' : ''}>\${z}</option>\`
-                            ).join('');
-                        })()}
-                    </select>
+                    <select id="timezone" name="timezone" style="width: 300px; padding: 8px 12px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background-color: #1f2937; color: #d1d5db; -webkit-appearance: none; -moz-appearance: none; appearance: none;"></select>
                     <button type="button" id="apply-timezone-btn" style="margin-left: 10px; padding: 8px 14px; background: rgba(52,152,219,0.2); color: #3498db; border: 1px solid rgba(52,152,219,0.4); border-radius: 6px; cursor: pointer; font-size: 13px;">Apply</button>
                     <p class="setting-help" style="margin-left: -3ch !important;">Sets the timezone for the scheduler. Affects when scheduled actions run.</p>
                     <p id="timezone-apply-status" class="setting-help" style="margin-left: -3ch !important; display: none;"></p>
@@ -1368,9 +1344,34 @@ const SettingsForms = {
             });
         }
 
+        // Populate timezone <select> options (done here to avoid template-literal escaping issues)
+        const tzSelect = container.querySelector('#timezone');
+        if (tzSelect) {
+            const tzZones = [
+                'UTC',
+                'Europe/London','Europe/Dublin','Europe/Lisbon',
+                'Europe/Paris','Europe/Berlin','Europe/Brussels','Europe/Amsterdam','Europe/Rome','Europe/Madrid','Europe/Zurich',
+                'Europe/Helsinki','Europe/Warsaw','Europe/Prague','Europe/Vienna','Europe/Budapest','Europe/Bucharest',
+                'Europe/Athens','Europe/Istanbul',
+                'Europe/Moscow','Europe/Kyiv',
+                'America/New_York','America/Chicago','America/Denver','America/Phoenix','America/Los_Angeles',
+                'America/Anchorage','Pacific/Honolulu',
+                'America/Toronto','America/Vancouver',
+                'America/Sao_Paulo','America/Argentina/Buenos_Aires','America/Mexico_City',
+                'Asia/Dubai','Asia/Kolkata','Asia/Dhaka',
+                'Asia/Bangkok','Asia/Singapore','Asia/Hong_Kong','Asia/Shanghai','Asia/Tokyo','Asia/Seoul',
+                'Australia/Sydney','Australia/Melbourne','Australia/Perth','Australia/Brisbane',
+                'Pacific/Auckland',
+                'Africa/Johannesburg','Africa/Cairo','Africa/Lagos'
+            ];
+            const currentTz = settings.timezone || 'UTC';
+            tzSelect.innerHTML = [...new Set(tzZones)].map(function(z) {
+                return '<option value="' + z + '"' + (z === currentTz ? ' selected' : '') + '>' + z + '</option>';
+            }).join('');
+        }
+
         // Timezone Apply button
         const applyTzBtn = container.querySelector('#apply-timezone-btn');
-        const tzSelect = container.querySelector('#timezone');
         const tzStatus = container.querySelector('#timezone-apply-status');
         if (applyTzBtn && tzSelect) {
             applyTzBtn.addEventListener('click', function() {
