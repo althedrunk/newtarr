@@ -1807,19 +1807,13 @@ let huntarrUI = {
                         `<td class="inst-num" id="${app}__${safeName}-upgraded">0</td>` +
                     `</tr>`;
                 }).join('');
-                const legacyRow =
-                    `<tr class="legacy-row" id="${app}-legacy-row" style="display:none">` +
-                        `<td><div class="inst-name-cell"><span class="inst-dot muted"></span><span class="inst-name">pre-tracking</span></div></td>` +
-                        `<td class="inst-num" id="${app}__legacy-hunted">0</td>` +
-                        `<td class="inst-num" id="${app}__legacy-upgraded">0</td>` +
-                    `</tr>`;
                 breakdown.innerHTML =
                     `<table class="instance-table"><thead><tr>` +
                         `<th>Instance</th>` +
                         `<th class="num-col">Searches</th>` +
                         `<th class="num-col">Upgrades</th>` +
                     `</tr></thead><tbody>` +
-                    rowsHtml + legacyRow +
+                    rowsHtml +
                     `</tbody></table>`;
             } else if (breakdown) {
                 breakdown.className = 'instance-breakdown';
@@ -2040,13 +2034,8 @@ let huntarrUI = {
 
                 // Per-instance breakdown stats
                 const instanceStats = stats[app].instances || {};
-                let instanceHunted = 0;
-                let instanceUpgraded = 0;
-
                 Object.entries(instanceStats).forEach(([instName, instData]) => {
                     const safeName = instName.replace(/[^a-zA-Z0-9_-]/g, '-');
-                    instanceHunted += instData.hunted || 0;
-                    instanceUpgraded += instData.upgraded || 0;
                     statTypes.forEach(type => {
                         const el = document.getElementById(`${app}__${safeName}-${type}`);
                         if (el) {
@@ -2054,24 +2043,6 @@ let huntarrUI = {
                         }
                     });
                 });
-
-                // Show pre-tracking legacy row if instance totals don't account for all stats
-                const totalHunted = stats[app].hunted || 0;
-                const totalUpgraded = stats[app].upgraded || 0;
-                const legacyHunted = totalHunted - instanceHunted;
-                const legacyUpgraded = totalUpgraded - instanceUpgraded;
-                const legacyRow = document.getElementById(`${app}-legacy-row`);
-                if (legacyRow) {
-                    if (legacyHunted > 0 || legacyUpgraded > 0) {
-                        legacyRow.style.display = '';
-                        const lh = document.getElementById(`${app}__legacy-hunted`);
-                        const lu = document.getElementById(`${app}__legacy-upgraded`);
-                        if (lh) this.animateNumber(lh, parseInt(lh.textContent) || 0, legacyHunted);
-                        if (lu) this.animateNumber(lu, parseInt(lu.textContent) || 0, legacyUpgraded);
-                    } else {
-                        legacyRow.style.display = 'none';
-                    }
-                }
             }
         });
     },
