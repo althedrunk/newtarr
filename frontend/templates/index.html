@@ -40,20 +40,13 @@
     {% include 'components/scripts.html' %}
     <!-- Load settings-related scripts -->
     <script src="/static/js/settings_forms.js?v={{ app_version }}"></script>
-    <!-- Load history script -->
-    <script src="/static/js/history.js"></script>
-    <!-- Load apps script -->
-    <script src="/static/js/apps.js"></script>
-    <!-- Load scheduling script -->
-    <script src="/static/js/scheduling.js"></script>
-    <!-- Emergency reset button implementation -->
-    <script src="/static/js/direct-reset.js"></script>
-    <!-- Stats reset handler -->
-    <script src="/static/js/stats-reset.js"></script>
-    <!-- Hourly API cap handler -->
-    <script src="/static/js/hourly-cap.js"></script>
-    <!-- Community Resources visibility handler -->
-    <script src="/static/js/community-resources.js"></script>
+    <script src="/static/js/history.js?v={{ app_version }}"></script>
+    <script src="/static/js/apps.js?v={{ app_version }}"></script>
+    <script src="/static/js/scheduling.js?v={{ app_version }}"></script>
+    <script src="/static/js/direct-reset.js?v={{ app_version }}"></script>
+    <script src="/static/js/stats-reset.js?v={{ app_version }}"></script>
+    <script src="/static/js/hourly-cap.js?v={{ app_version }}"></script>
+    <script src="/static/js/community-resources.js?v={{ app_version }}"></script>
     
 </body>
 </html>

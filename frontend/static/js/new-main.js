@@ -1798,47 +1798,29 @@ let huntarrUI = {
             const instances = statusData?.instances || [];
             if (breakdown && instances.length > 1) {
                 breakdown.className = 'instance-breakdown multi';
-                const headerHtml =
-                    `<div class="instance-breakdown-header">` +
-                        `<span>Per Instance</span>` +
-                        `<span class="inst-col-right">Searches</span>` +
-                        `<span class="inst-col-right">Upgrades</span>` +
-                    `</div>`;
                 const rowsHtml = instances.map(inst => {
                     const safeName = (inst.name || 'Default').replace(/[^a-zA-Z0-9_-]/g, '-');
                     const dotClass = inst.connected ? 'ok' : 'err';
-                    return `<div class="instance-row" data-app="${app}" data-inst="${safeName}">` +
-                        `<div class="inst-info">` +
-                            `<span class="inst-dot ${dotClass}"></span>` +
-                            `<span class="inst-name" title="${inst.name}">${inst.name}</span>` +
-                        `</div>` +
-                        `<div class="inst-count-cell">` +
-                            `<span class="inst-count-num" id="${app}__${safeName}-hunted">0</span>` +
-                            `<span class="inst-count-label">searches</span>` +
-                        `</div>` +
-                        `<div class="inst-count-cell">` +
-                            `<span class="inst-count-num" id="${app}__${safeName}-upgraded">0</span>` +
-                            `<span class="inst-count-label">upgrades</span>` +
-                        `</div>` +
-                    `</div>`;
+                    return `<tr data-app="${app}" data-inst="${safeName}">` +
+                        `<td><div class="inst-name-cell"><span class="inst-dot ${dotClass}"></span><span class="inst-name" title="${inst.name}">${inst.name}</span></div></td>` +
+                        `<td class="inst-num" id="${app}__${safeName}-hunted">0</td>` +
+                        `<td class="inst-num" id="${app}__${safeName}-upgraded">0</td>` +
+                    `</tr>`;
                 }).join('');
-                // Legacy row placeholder (filled in by updateStatsDisplay when there's a gap)
-                const legacyHtml =
-                    `<div class="instance-row legacy-row" id="${app}-legacy-row" style="display:none">` +
-                        `<div class="inst-info">` +
-                            `<span class="inst-dot legacy"></span>` +
-                            `<span class="inst-name" title="Stats recorded before per-instance tracking">pre-tracking</span>` +
-                        `</div>` +
-                        `<div class="inst-count-cell">` +
-                            `<span class="inst-count-num" id="${app}__legacy-hunted">0</span>` +
-                            `<span class="inst-count-label">searches</span>` +
-                        `</div>` +
-                        `<div class="inst-count-cell">` +
-                            `<span class="inst-count-num" id="${app}__legacy-upgraded">0</span>` +
-                            `<span class="inst-count-label">upgrades</span>` +
-                        `</div>` +
-                    `</div>`;
-                breakdown.innerHTML = headerHtml + rowsHtml + legacyHtml;
+                const legacyRow =
+                    `<tr class="legacy-row" id="${app}-legacy-row" style="display:none">` +
+                        `<td><div class="inst-name-cell"><span class="inst-dot muted"></span><span class="inst-name">pre-tracking</span></div></td>` +
+                        `<td class="inst-num" id="${app}__legacy-hunted">0</td>` +
+                        `<td class="inst-num" id="${app}__legacy-upgraded">0</td>` +
+                    `</tr>`;
+                breakdown.innerHTML =
+                    `<table class="instance-table"><thead><tr>` +
+                        `<th>Instance</th>` +
+                        `<th class="num-col">Searches</th>` +
+                        `<th class="num-col">Upgrades</th>` +
+                    `</tr></thead><tbody>` +
+                    rowsHtml + legacyRow +
+                    `</tbody></table>`;
             } else if (breakdown) {
                 breakdown.className = 'instance-breakdown';
                 breakdown.innerHTML = '';
