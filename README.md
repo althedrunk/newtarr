@@ -1,8 +1,8 @@
-# NewtArr (althedrunk fork)
+# NewtArr
 
-A neutered fork of [Huntarr](https://github.com/plexguide/Huntarr.io) v6.6.3, from simpler times, maintained by [ElfHosted](https://store.elfhosted.com) — reforked by [althedrunk](https://github.com/althedrunk/newtarr).
+A neutered fork of [Huntarr](https://github.com/plexguide/Huntarr.io) v6.6.3, from simpler times, maintained by [ElfHosted](https://store.elfhosted.com), with additional fixes and improvements maintained in this repository.
 
-## althedrunk fork — what's different
+## Additional changes in this repo
 
 This fork builds on top of ElfHosted's NewtArr with a set of bug fixes and quality-of-life improvements. If you're using TRaSH Guides quality profiles or multiple *arr instances, these changes are particularly relevant.
 
