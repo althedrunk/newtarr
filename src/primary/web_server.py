@@ -91,6 +91,18 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 print(f"Flask app created with template_folder: {app.template_folder}")
 print(f"Flask app created with static_folder: {app.static_folder}")
 
+# Inject app_version into every template for cache-busting static assets
+_version_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'version.txt')
+try:
+    with open(_version_file) as _vf:
+        _APP_VERSION = _vf.read().strip()
+except Exception:
+    _APP_VERSION = 'unknown'
+
+@app.context_processor
+def inject_version():
+    return {'app_version': _APP_VERSION}
+
 # Add debug logging for template rendering
 def debug_template_rendering():
     """Additional logging for Flask template rendering"""
