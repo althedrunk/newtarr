@@ -29,7 +29,6 @@ General Settings now includes a timezone picker. The selected timezone is applie
 ### UI fixes
 
 - **Chrome dropdown menus** — dropdowns were rendering white text on a white background in Chrome. Fixed with explicit colour rules on `<select>` and `<option>` elements. (`v1.1.0`)
-- **Remove instance button** — the "Remove" button text was overflowing outside the red box. Fixed. (`v1.1.0`)
 - **Cache-busting** — all static CSS and JS files now include a version query string (`?v=1.1.x`) so browsers always load the latest files after a container update. (`v1.1.1`)
 
 ### Running this fork
