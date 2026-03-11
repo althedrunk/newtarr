@@ -1,6 +1,56 @@
-# NewtArr
+# NewtArr (althedrunk fork)
 
-A neutered fork of [Huntarr](https://github.com/plexguide/Huntarr.io) v6.6.3, from simpler times, maintained by [ElfHosted](https://store.elfhosted.com).
+A neutered fork of [Huntarr](https://github.com/plexguide/Huntarr.io) v6.6.3, from simpler times, maintained by [ElfHosted](https://store.elfhosted.com) — reforked by [althedrunk](https://github.com/althedrunk/newtarr).
+
+## althedrunk fork — what's different
+
+This fork builds on top of ElfHosted's NewtArr with a set of bug fixes and quality-of-life improvements. If you're using TRaSH Guides quality profiles or multiple *arr instances, these changes are particularly relevant.
+
+### Bug fixes
+
+**Radarr: Custom Format scores now respected for upgrade searches** (`v1.1.0`)
+
+The original `get_cutoff_unmet_movies()` function only compared quality rank against the profile cutoff — it completely ignored `cutoffFormatScore`. This meant that movies which had reached the quality cutoff (e.g. Remux-2160p) but were still below the profile's Custom Format score threshold were silently skipped and never searched for upgrades.
+
+This is the default behaviour of TRaSH Guides quality profiles, which set `cutoffFormatScore` to a high value (e.g. 10000) to drive CF-based upgrades. In practice, most of your library would never be upgraded.
+
+**Fix:** The function now reads `cutoffFormatScore` from the quality profile and `customFormatScore` from each movie file. A movie is flagged as cutoff-unmet if either the quality rank *or* the custom format score hasn't been met.
+
+### New features
+
+**Per-instance stats on the dashboard** (`v1.1.0`)
+
+If you have multiple instances of the same app (e.g. `radarr` + `radarr-shared`, `sonarr` + `sonarr-shared`), the dashboard now shows a per-instance breakdown of searches and upgrades triggered, in addition to the combined total.
+
+**Timezone settings** (`v1.1.0`)
+
+General Settings now includes a timezone picker. The selected timezone is applied immediately and persists across container restarts, so the scheduler runs at the correct local time.
+
+### UI fixes
+
+- **Chrome dropdown menus** — dropdowns were rendering white text on a white background in Chrome. Fixed with explicit colour rules on `<select>` and `<option>` elements. (`v1.1.0`)
+- **Remove instance button** — the "Remove" button text was overflowing outside the red box. Fixed. (`v1.1.0`)
+- **Cache-busting** — all static CSS and JS files now include a version query string (`?v=1.1.x`) so browsers always load the latest files after a container update. (`v1.1.1`)
+
+### Running this fork
+
+```yaml
+services:
+  newtarr:
+    image: ghcr.io/althedrunk/newtarr:latest
+    container_name: newtarr
+    restart: unless-stopped
+    ports:
+      - "9705:9705"
+    volumes:
+      - /opt/media-stack/appdata/newtarr:/config
+    environment:
+      - TZ=Europe/London
+```
+
+The image is built automatically from this repository via GitHub Actions on every push to `main`.
+
+---
 
 ## Why this fork?
 
@@ -88,15 +138,15 @@ NewtArr continuously searches your *arr media libraries (Sonarr, Radarr, Lidarr,
 ```yaml
 services:
   newtarr:
-    image: ghcr.io/elfhosted/newtarr:latest
+    image: ghcr.io/althedrunk/newtarr:latest
     container_name: newtarr
-    restart: always
+    restart: unless-stopped
     ports:
       - "9705:9705"
     volumes:
       - ./config:/config
     environment:
-      - TZ=UTC
+      - TZ=Europe/London
 ```
 
 The web UI is available on port 9705.
