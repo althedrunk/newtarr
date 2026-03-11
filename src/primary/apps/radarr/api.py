@@ -199,6 +199,7 @@ def get_cutoff_unmet_movies(api_url: str, api_key: str, api_timeout: int, monito
         profile_map[p['id']] = {
             'cutoff_id': p.get('cutoff'),
             'quality_rank': quality_rank,
+            'cutoff_format_score': p.get('cutoffFormatScore', 0),
         }
 
     unmet_movies = []
@@ -219,8 +220,27 @@ def get_cutoff_unmet_movies(api_url: str, api_key: str, api_timeout: int, monito
                 # Compare by rank position in the profile, not by raw quality ID
                 current_rank = quality_rank.get(current_quality_id)
                 cutoff_rank = quality_rank.get(cutoff_id)
+                cutoff_format_score = profile_info.get('cutoff_format_score', 0)
+                current_format_score = movie_file.get('customFormatScore', 0)
 
-                if current_rank is not None and cutoff_rank is not None and current_rank < cutoff_rank:
+                quality_unmet = (
+                    current_rank is not None and
+                    cutoff_rank is not None and
+                    current_rank < cutoff_rank
+                )
+                # A movie at or above the quality cutoff may still need upgrading
+                # if its custom format score hasn't reached the profile's cutoffFormatScore.
+                # This is the case for TRaSH Guides profiles where cutoffFormatScore is set
+                # to a high value (e.g. 10000) to drive CF-based upgrades.
+                format_score_unmet = (
+                    current_rank is not None and
+                    cutoff_rank is not None and
+                    current_rank >= cutoff_rank and
+                    cutoff_format_score > 0 and
+                    current_format_score < cutoff_format_score
+                )
+
+                if quality_unmet or format_score_unmet:
                     unmet_movies.append(movie)
 
     radarr_logger.debug(f"Found {len(unmet_movies)} cutoff unmet movies (monitored_only={monitored_only}).")
