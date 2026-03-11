@@ -101,7 +101,7 @@ def process_cutoff_upgrades(
         if search_result:
             radarr_logger.info(f"  - Successfully triggered search for quality upgrade.")
             add_processed_id("radarr", instance_name, str(movie_id))
-            increment_stat("radarr", "upgraded")
+            increment_stat("radarr", "upgraded", instance_name=instance_name)
             
             # Log to history so the upgrade appears in the history UI
             media_name = f"{movie_title} ({movie_year})"

@@ -91,6 +91,17 @@ try:
     # Initialize main logger
     huntarr_logger = setup_main_logger()
     huntarr_logger.info("Successfully imported application components.")
+
+    # Apply saved timezone on startup so the scheduler uses the correct timezone
+    try:
+        from primary.settings_manager import load_settings, apply_timezone
+        _general = load_settings("general")
+        _tz = _general.get("timezone", "").strip()
+        if _tz:
+            apply_timezone(_tz)
+            huntarr_logger.info(f"Timezone restored from settings: {_tz}")
+    except Exception as _tz_err:
+        root_logger.warning(f"Could not restore saved timezone: {_tz_err}")
 except ImportError as e:
     root_logger.critical(f"Fatal Error: Failed to import application components: {e}", exc_info=True)
     root_logger.critical("Please ensure the application structure is correct, dependencies are installed (`pip install -r requirements.txt`), and the script is run from the project root.")

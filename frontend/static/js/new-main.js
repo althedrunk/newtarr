@@ -1792,6 +1792,28 @@ let huntarrUI = {
             // *Arr specific badge text (already checked isConfigured)
             statusElement.innerHTML = `<i class="fas fa-plug"></i> Connected ${connectedCount}/${totalConfigured}`;
             statusElement.className = 'status-badge ' + (isConnected ? 'connected' : 'error');
+
+            // Render per-instance breakdown if multiple instances are configured
+            const breakdown = document.getElementById(`${app}-instance-breakdown`);
+            const instances = statusData?.instances || [];
+            if (breakdown && instances.length > 1) {
+                breakdown.className = 'instance-breakdown multi';
+                breakdown.innerHTML = `<div class="instance-breakdown-title">Per Instance</div>` +
+                    instances.map(inst => {
+                        const safeName = (inst.name || 'Default').replace(/[^a-zA-Z0-9_-]/g, '-');
+                        const connIcon = inst.connected
+                            ? `<span class="inst-status ok"><i class="fas fa-check-circle"></i></span>`
+                            : `<span class="inst-status err"><i class="fas fa-times-circle"></i></span>`;
+                        return `<div class="instance-row" data-app="${app}" data-inst="${safeName}">` +
+                            `<span class="inst-name" title="${inst.name}">${inst.name}</span>` +
+                            connIcon +
+                            `<span class="inst-stats"><span id="${app}__${safeName}-hunted">0</span>S / <span id="${app}__${safeName}-upgraded">0</span>U</span>` +
+                            `</div>`;
+                    }).join('');
+            } else if (breakdown) {
+                breakdown.className = 'instance-breakdown';
+                breakdown.innerHTML = '';
+            }
         } else {
             // Standard badge update for other configured apps
             if (isConnected) {
@@ -1992,7 +2014,7 @@ let huntarrUI = {
     },
     
     updateStatsDisplay: function(stats) {
-        // Update each app's statistics
+        // Update each app's combined statistics
         const apps = ['sonarr', 'radarr', 'lidarr', 'readarr', 'whisparr', 'eros', 'swaparr'];
         const statTypes = ['hunted', 'upgraded'];
         
@@ -2001,9 +2023,20 @@ let huntarrUI = {
                 statTypes.forEach(type => {
                     const element = document.getElementById(`${app}-${type}`);
                     if (element) {
-                        // Animate the number change
                         this.animateNumber(element, parseInt(element.textContent), stats[app][type] || 0);
                     }
+                });
+
+                // Per-instance breakdown stats
+                const instanceStats = stats[app].instances || {};
+                Object.entries(instanceStats).forEach(([instName, instData]) => {
+                    const safeName = instName.replace(/[^a-zA-Z0-9_-]/g, '-');
+                    statTypes.forEach(type => {
+                        const el = document.getElementById(`${app}__${safeName}-${type}`);
+                        if (el) {
+                            this.animateNumber(el, parseInt(el.textContent) || 0, instData[type] || 0);
+                        }
+                    });
                 });
             }
         });

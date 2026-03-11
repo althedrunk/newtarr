@@ -185,7 +185,7 @@ def process_missing_movies(
             log_processed_media("radarr", media_name, movie_id, instance_name, "missing")
             radarr_logger.debug(f"Logged history entry for movie: {media_name}")
             
-            increment_stat("radarr", "hunted")
+            increment_stat("radarr", "hunted", instance_name=instance_name)
             movies_processed += 1
             processed_any = True
         else:

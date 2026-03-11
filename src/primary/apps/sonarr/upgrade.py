@@ -178,7 +178,7 @@ def process_upgrade_episodes_mode(
                 # Add stats incrementing right here - this is the code path that's actually being executed
                 for episode_id in episode_ids:
                     # Increment stat for each episode individually, just like Radarr
-                    increment_stat("sonarr", "upgraded")
+                    increment_stat("sonarr", "upgraded", instance_name=instance_name)
                     sonarr_logger.info(f"*** STATS INCREMENT *** sonarr upgraded by 1 for episode ID {episode_id}")
                 
                 # Mark episodes as processed using stateful management
@@ -370,7 +370,7 @@ def process_upgrade_seasons_mode(
                     sonarr_logger.debug(f"Marked episode ID {episode_id} as processed for upgrades")
                     
                     # Increment stats for this episode (consistent with Radarr's approach)
-                    increment_stat("sonarr", "upgraded")
+                    increment_stat("sonarr", "upgraded", instance_name=instance_name)
                     sonarr_logger.debug(f"Incremented sonarr upgraded statistic for episode {episode_id}")
                     
                     # Find the episode information for history logging
@@ -540,7 +540,7 @@ def process_upgrade_shows_mode(
                     sonarr_logger.debug(f"Marked episode ID {episode_id} as processed for upgrades")
                     
                     # Increment stats for this episode (consistent with Radarr's approach)
-                    increment_stat("sonarr", "upgraded")
+                    increment_stat("sonarr", "upgraded", instance_name=instance_name)
                     sonarr_logger.debug(f"Incremented sonarr upgraded statistic for episode {episode_id}")
                     
                     # Find the episode information for history logging

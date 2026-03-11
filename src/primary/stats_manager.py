@@ -103,10 +103,12 @@ def load_stats() -> Dict[str, Dict[str, int]]:
             with open(STATS_FILE, 'r') as f:
                 stats = json.load(f)
                 
-            # Ensure all apps are in the stats
+            # Ensure all apps are in the stats and have the instances sub-key
             for app in default_stats:
                 if app not in stats:
                     stats[app] = default_stats[app]
+                elif "instances" not in stats[app]:
+                    stats[app]["instances"] = {}
             
             logger.debug(f"Loaded stats: {stats}")
             return stats
@@ -117,16 +119,16 @@ def load_stats() -> Dict[str, Dict[str, int]]:
         logger.error(f"Error loading stats from {STATS_FILE}: {e}")
         return default_stats
 
-def get_default_stats() -> Dict[str, Dict[str, int]]:
+def get_default_stats() -> Dict[str, Any]:
     """Get the default stats structure"""
     return {
-        "sonarr": {"hunted": 0, "upgraded": 0},
-        "radarr": {"hunted": 0, "upgraded": 0},
-        "lidarr": {"hunted": 0, "upgraded": 0},
-        "readarr": {"hunted": 0, "upgraded": 0},
-        "whisparr": {"hunted": 0, "upgraded": 0},
-        "eros": {"hunted": 0, "upgraded": 0},
-        "swaparr": {"hunted": 0, "upgraded": 0}
+        "sonarr": {"hunted": 0, "upgraded": 0, "instances": {}},
+        "radarr": {"hunted": 0, "upgraded": 0, "instances": {}},
+        "lidarr": {"hunted": 0, "upgraded": 0, "instances": {}},
+        "readarr": {"hunted": 0, "upgraded": 0, "instances": {}},
+        "whisparr": {"hunted": 0, "upgraded": 0, "instances": {}},
+        "eros": {"hunted": 0, "upgraded": 0, "instances": {}},
+        "swaparr": {"hunted": 0, "upgraded": 0, "instances": {}}
     }
 
 def get_default_hourly_caps() -> Dict[str, Dict[str, int]]:
@@ -377,14 +379,15 @@ def save_stats(stats: Dict[str, Dict[str, int]]) -> bool:
         logger.error(f"Error saving stats to {STATS_FILE}: {e}", exc_info=True)
         return False
 
-def increment_stat(app_type: str, stat_type: str, count: int = 1) -> bool:
+def increment_stat(app_type: str, stat_type: str, count: int = 1, instance_name: Optional[str] = None) -> bool:
     """
-    Increment a specific statistic
+    Increment a specific statistic, optionally broken down by instance name.
     
     Args:
         app_type: The application type (sonarr, radarr, etc.)
         stat_type: The type of statistic (hunted or upgraded)
         count: The amount to increment by (default: 1)
+        instance_name: Optional instance name for per-instance tracking
         
     Returns:
         True if successful, False otherwise
@@ -406,7 +409,16 @@ def increment_stat(app_type: str, stat_type: str, count: int = 1) -> bool:
         prev_value = stats[app_type][stat_type]
         stats[app_type][stat_type] += count
         new_value = stats[app_type][stat_type]
-        logger.info(f"*** STATS INCREMENT *** {app_type} {stat_type} by {count}: {prev_value} -> {new_value}")
+
+        # Per-instance tracking
+        if instance_name:
+            if "instances" not in stats[app_type]:
+                stats[app_type]["instances"] = {}
+            if instance_name not in stats[app_type]["instances"]:
+                stats[app_type]["instances"][instance_name] = {"hunted": 0, "upgraded": 0}
+            stats[app_type]["instances"][instance_name][stat_type] += count
+
+        logger.info(f"*** STATS INCREMENT *** {app_type}{'/' + instance_name if instance_name else ''} {stat_type} by {count}: {prev_value} -> {new_value}")
         save_success = save_stats(stats)
         
         if not save_success:
@@ -453,11 +465,13 @@ def reset_stats(app_type: Optional[str] = None) -> bool:
             for app in stats:
                 stats[app]["hunted"] = 0
                 stats[app]["upgraded"] = 0
+                stats[app]["instances"] = {}
         elif app_type in stats:
             # Reset specific app stats
             logger.info(f"Resetting statistics for {app_type}")
             stats[app_type]["hunted"] = 0
             stats[app_type]["upgraded"] = 0
+            stats[app_type]["instances"] = {}
         else:
             logger.error(f"Invalid app_type for reset: {app_type}")
             return False

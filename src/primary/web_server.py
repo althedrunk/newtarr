@@ -597,7 +597,8 @@ def api_app_status(app_name):
                     instances = get_instances_func()
                     total_configured = len(instances)
                     api_timeout = settings_manager.get_setting(app_name, "api_timeout", 10) # Get global timeout
-                    
+                    instance_details = []  # per-instance name + connection status
+
                     if total_configured > 0:
                         web_logger.debug(f"Checking connection for {total_configured} {app_name.capitalize()} instances...")
                         if hasattr(api_module, 'check_connection'):
@@ -605,23 +606,31 @@ def api_app_status(app_name):
                             for instance in instances:
                                 inst_url = instance.get("api_url")
                                 inst_key = instance.get("api_key")
-                                inst_name = instance.get("instance_name", "Default")
+                                inst_name = instance.get("instance_name", instance.get("name", "Default"))
+                                inst_connected = False
                                 try:
                                     # Use a short timeout per instance check
                                     if check_connection_func(inst_url, inst_key, min(api_timeout, 5)):
                                         web_logger.debug(f"{app_name.capitalize()} instance '{inst_name}' connected successfully.")
                                         connected_count += 1
+                                        inst_connected = True
                                     else:
                                         web_logger.debug(f"{app_name.capitalize()} instance '{inst_name}' connection check failed.")
                                 except Exception as e:
                                     web_logger.error(f"Error checking connection for {app_name.capitalize()} instance '{inst_name}': {str(e)}")
+                                instance_details.append({"name": inst_name, "connected": inst_connected})
                         else:
                             web_logger.warning(f"check_connection function not found in {app_name} API module")
+                            instance_details = [{"name": inst.get("instance_name", inst.get("name", "Default")), "connected": False} for inst in instances]
                     else:
                         web_logger.debug(f"No configured {app_name.capitalize()} instances found for status check.")
                     
-                    # Prepare multi-instance response
-                    response_data = {"total_configured": total_configured, "connected_count": connected_count}
+                    # Prepare multi-instance response (includes per-instance details)
+                    response_data = {
+                        "total_configured": total_configured,
+                        "connected_count": connected_count,
+                        "instances": instance_details
+                    }
                 else:
                     web_logger.warning(f"get_configured_instances function not found in {app_name} module")
                     # Fall back to legacy status check
@@ -706,36 +715,33 @@ def api_stop_hunt():
 @app.route('/api/settings/apply-timezone', methods=['POST'])
 def apply_timezone_setting():
     """Apply timezone setting to the container."""
-    # This functionality has been disabled as per user request
-    return jsonify({
-        "success": False, 
-        "message": "Timezone settings have been disabled. This feature may be available in future updates."
-    })
-    
-    # Original implementation commented out
-    '''
     data = request.json
-    timezone = data.get('timezone')
     web_logger = get_logger("web_server")
-    
+
+    if not data:
+        return jsonify({"success": False, "error": "No data provided"}), 400
+
+    timezone = data.get('timezone')
+
     if not timezone:
         return jsonify({"success": False, "error": "No timezone specified"}), 400
-        
+
     web_logger.info(f"Applying timezone setting: {timezone}")
-    
+
     # Save the timezone to general settings
     general_settings = settings_manager.load_settings("general")
     general_settings["timezone"] = timezone
     settings_manager.save_settings("general", general_settings)
-    
+
     # Apply the timezone to the container
     success = settings_manager.apply_timezone(timezone)
-    
+
     if success:
-        return jsonify({"success": True, "message": f"Timezone set to {timezone}. Container restart may be required for full effect."})
+        return jsonify({"success": True, "message": f"Timezone set to {timezone}. The scheduler will use this timezone immediately."})
     else:
-        return jsonify({"success": False, "error": f"Failed to apply timezone {timezone}"}), 500
-    '''
+        # Even if symlinking failed (e.g. read-only container), the TZ env var is still set
+        # which is sufficient for Python's datetime to use the correct timezone.
+        return jsonify({"success": True, "message": f"Timezone set to {timezone} via TZ environment variable (system timezone file update may require elevated permissions).", "warning": True})
 
 @app.route('/api/stats', methods=['GET'])
 def api_get_stats():

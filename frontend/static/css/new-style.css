@@ -2451,3 +2451,49 @@ input#stateful_management_hours {
     max-width: 55px !important;
     font-size: 0.9rem;
 }
+
+/* ── Remove instance button: definitive cross-browser fix ───────────────── */
+/* Both rule blocks in this file + style.css can produce conflicting heights.
+   This final rule wins via specificity and ensures the text never overflows. */
+.instance-actions .remove-instance-btn,
+.instance-header .remove-instance-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+}
+
+/* ── Chrome / cross-browser select dropdown fix ────────────────────────── */
+/* Chrome's native <select> popup ignores inherited colours; be explicit.   */
+select,
+select.styled-select,
+select.form-control,
+.setting-item select,
+#schedulingSection select,
+#schedulingPage select {
+    color: #d1d5db !important;
+    background-color: #1f2937 !important;
+    -webkit-text-fill-color: #d1d5db !important;
+}
+
+/* Option elements inside every select */
+select option,
+select.styled-select option,
+select.form-control option {
+    color: #d1d5db !important;
+    background-color: #1f2937 !important;
+    -webkit-text-fill-color: #d1d5db !important;
+}
+
+/* optgroup labels */
+select optgroup {
+    color: #9ca3af !important;
+    background-color: #111827 !important;
+}

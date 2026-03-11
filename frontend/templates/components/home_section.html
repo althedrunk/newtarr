@@ -117,6 +117,7 @@
                                 <div class="stat-label">Upgrades Triggered</div>
                             </div>
                         </div>
+                        <div class="instance-breakdown" id="sonarr-instance-breakdown"></div>
                         <div class="reset-button-container">
                             <button class="cycle-reset-button" data-app="sonarr"><i class="fas fa-sync-alt"></i> Reset Cycle</button>
                         </div>
@@ -149,6 +150,7 @@
                                 <span class="stat-label">Upgrades Triggered</span>
                             </div>
                         </div>
+                        <div class="instance-breakdown" id="radarr-instance-breakdown"></div>
                         <div class="reset-button-container">
                             <button class="cycle-reset-button" data-app="radarr"><i class="fas fa-sync-alt"></i> Reset Cycle</button>
                         </div>
@@ -181,6 +183,7 @@
                                 <span class="stat-label">Upgrades Triggered</span>
                             </div>
                         </div>
+                        <div class="instance-breakdown" id="lidarr-instance-breakdown"></div>
                         <div class="reset-button-container">
                             <button class="cycle-reset-button" data-app="lidarr"><i class="fas fa-sync-alt"></i> Reset Cycle</button>
                         </div>
@@ -213,6 +216,7 @@
                                 <span class="stat-label">Upgrades Triggered</span>
                             </div>
                         </div>
+                        <div class="instance-breakdown" id="readarr-instance-breakdown"></div>
                         <div class="reset-button-container">
                             <button class="cycle-reset-button" data-app="readarr"><i class="fas fa-sync-alt"></i> Reset Cycle</button>
                         </div>
@@ -245,6 +249,7 @@
                                 <span class="stat-label">Upgrades Triggered</span>
                             </div>
                         </div>
+                        <div class="instance-breakdown" id="whisparr-instance-breakdown"></div>
                         <div class="reset-button-container">
                             <button class="cycle-reset-button" data-app="whisparr"><i class="fas fa-sync-alt"></i> Reset Cycle</button>
                         </div>
@@ -277,6 +282,7 @@
                                 <span class="stat-label">Upgrades Triggered</span>
                             </div>
                         </div>
+                        <div class="instance-breakdown" id="eros-instance-breakdown"></div>
                         <div class="reset-button-container">
                             <button class="cycle-reset-button" data-app="eros"><i class="fas fa-sync-alt"></i> Reset Cycle</button>
                         </div>
@@ -715,6 +721,56 @@
         letter-spacing: 0.7px;
         text-transform: uppercase;
         opacity: 0.8;
+    }
+
+    /* Per-instance breakdown table */
+    .instance-breakdown {
+        width: 100%;
+        margin: 6px 0 2px;
+        display: none; /* hidden when only 1 instance */
+    }
+    .instance-breakdown.multi {
+        display: block;
+    }
+    .instance-breakdown-title {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: rgba(160, 168, 184, 0.6);
+        margin-bottom: 5px;
+        padding-bottom: 3px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .instance-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 3px 0;
+        font-size: 11px;
+        gap: 6px;
+    }
+    .instance-row .inst-name {
+        font-weight: 600;
+        color: rgba(209, 213, 219, 0.9);
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .instance-row .inst-status {
+        font-size: 10px;
+        flex-shrink: 0;
+    }
+    .instance-row .inst-status.ok { color: #2ecc71; }
+    .instance-row .inst-status.err { color: #e74c3c; }
+    .instance-row .inst-stats {
+        color: rgba(160, 168, 184, 0.8);
+        flex-shrink: 0;
+        text-align: right;
+    }
+    .instance-row .inst-stats span {
+        font-weight: 600;
+        color: rgba(209,213,219,0.9);
     }
     
     /* App-specific accent colors for sonarr */
