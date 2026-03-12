@@ -202,6 +202,11 @@ def get_user_info_route():
     username = get_username_from_session(session_token) # Use auth function
 
     if not username:
+        local_access_bypass = settings_manager.get_setting('general', 'local_access_bypass', False)
+        proxy_auth_bypass = settings_manager.get_setting('general', 'proxy_auth_bypass', False)
+        if local_access_bypass or proxy_auth_bypass:
+            return jsonify({"username": "Admin (Bypassed)", "is_2fa_enabled": False})
+
         logger.warning("Attempt to get user info failed: Not authenticated (no valid session).")
         return jsonify({"error": "Not authenticated"}), 401
 
