@@ -1407,17 +1407,17 @@ let huntarrUI = {
             console.log(`[huntarrUI] Found ${instanceItems.length} instance items for ${app}. Processing multi-instance mode.`);
             // Multi-instance logic (current Sonarr logic)
             instanceItems.forEach((item, index) => {
-                const instanceId = item.dataset.instanceId; // Assumes Sonarr uses data-instance-id
-                const nameInput = form.querySelector(`#${app}_instance_${instanceId}_name`);
-                const urlInput = form.querySelector(`#${app}_instance_${instanceId}_api_url`);
-                const keyInput = form.querySelector(`#${app}_instance_${instanceId}_api_key`);
-                const enabledInput = item.querySelector('.instance-enabled'); // Assumes Sonarr uses this class for enable toggle
+                const nameInput = item.querySelector('input[name="name"]');
+                const urlInput = item.querySelector('input[name="api_url"]');
+                const keyInput = item.querySelector('input[name="api_key"]');
+                const enabledInput = item.querySelector('input[name="enabled"]');
 
                 if (urlInput && keyInput) { // Need URL and Key at least
                     settings.instances.push({
                         // Use nameInput value if available, otherwise generate a default
                         name: nameInput && nameInput.value.trim() !== '' ? nameInput.value.trim() : `Instance ${index + 1}`,
                         api_url: this.cleanUrlString(urlInput.value),
+                        api_key: keyInput.value.trim(),
                         // Default to true if toggle doesn't exist or is checked
                         enabled: enabledInput ? enabledInput.checked : true
                     });
@@ -1455,14 +1455,15 @@ let huntarrUI = {
         if (instanceItems.length > 0) {
             // Multi-instance: Iterate items again to get IDs
             instanceItems.forEach((item) => {
-                const instanceId = item.dataset.instanceId;
-                if(instanceId) {
-                    handledInstanceFieldIds.add(`${app}_instance_${instanceId}_name`);
-                    handledInstanceFieldIds.add(`${app}_instance_${instanceId}_api_url`);
-                    handledInstanceFieldIds.add(`${app}_instance_${instanceId}_api_key`);
-                    const enabledToggle = item.querySelector('.instance-enabled');
-                    if (enabledToggle && enabledToggle.id) handledInstanceFieldIds.add(enabledToggle.id);
-                }
+                const nameInput = item.querySelector('input[name="name"]');
+                const urlInput = item.querySelector('input[name="api_url"]');
+                const keyInput = item.querySelector('input[name="api_key"]');
+                const enabledInput = item.querySelector('input[name="enabled"]');
+                
+                if (nameInput && nameInput.id) handledInstanceFieldIds.add(nameInput.id);
+                if (urlInput && urlInput.id) handledInstanceFieldIds.add(urlInput.id);
+                if (keyInput && keyInput.id) handledInstanceFieldIds.add(keyInput.id);
+                if (enabledInput && enabledInput.id) handledInstanceFieldIds.add(enabledInput.id);
             });
         } else {
             // Single-instance: Check for standard IDs
@@ -1796,7 +1797,7 @@ let huntarrUI = {
             // Render per-instance breakdown if multiple instances are configured
             const breakdown = document.getElementById(`${app}-instance-breakdown`);
             const instances = statusData?.instances || [];
-            if (breakdown && instances.length > 1) {
+            if (breakdown && instances.length > 0) {
                 breakdown.className = 'instance-breakdown multi';
                 const rowsHtml = instances.map(inst => {
                     const safeName = (inst.name || 'Default').replace(/[^a-zA-Z0-9_-]/g, '-');
