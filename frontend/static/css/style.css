@@ -1519,13 +1519,15 @@ label .info-icon ~ text {
     background-color: #dc3545;
     color: white;
     border: none;
-    width: 30px;
-    height: 30px;
+    padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
+    width: auto;
+    height: auto;
 }
 
 .remove-instance-btn:hover {
